@@ -48,7 +48,7 @@ export function constructMetadata({
       creator: "@joshtriedcoding"
     },
     icons,
-    metadataBase: new URL('https://docuchatgpt-jet.vercel.app'),
+    metadataBase: new URL('https://docuchatgpt.vercel.app'),
     themeColor: '#FFF',
     ...(noIndex && {
       robots: {
