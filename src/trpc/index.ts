@@ -1,19 +1,20 @@
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
+import {
+  getUserSubscriptionPlan,
+  stripe,
+} from '@/lib/stripe'
 import {
   privateProcedure,
   publicProcedure,
   router,
 } from './trpc'
-import { TRPCError } from '@trpc/server'
-import { db } from '@/db'
-import { z } from 'zod'
+
 import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
-import { absoluteUrl } from '@/lib/utils'
-import {
-  getUserSubscriptionPlan,
-  stripe,
-} from '@/lib/stripe'
 import { PLANS } from '@/config/stripe'
+import { TRPCError } from '@trpc/server'
+import { absoluteUrl } from '@/lib/utils'
+import { db } from '@/db'
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
+import { z } from 'zod'
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -90,7 +91,7 @@ export const appRouter = router({
         await stripe.checkout.sessions.create({
           success_url: billingUrl,
           cancel_url: billingUrl,
-          payment_method_types: ['card', 'paypal'],
+          payment_method_types: ['card'],
           mode: 'subscription',
           billing_address_collection: 'auto',
           line_items: [
