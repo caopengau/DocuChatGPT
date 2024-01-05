@@ -199,7 +199,8 @@ export const appRouter = router({
       const pinecone = await getPineconeClient();
       const pineconeIndex = pinecone.Index("docuchatgpt");
       await pineconeIndex.delete1({
-        ids: [input.id],
+        namespace: file.id,
+        deleteAll: true,
       });
 
       await utapi.deleteFiles([file.key]);

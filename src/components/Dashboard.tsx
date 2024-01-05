@@ -1,7 +1,5 @@
 'use client'
 
-import { trpc } from '@/app/_trpc/client'
-import UploadButton from './UploadButton'
 import {
   Ghost,
   Loader2,
@@ -9,12 +7,15 @@ import {
   Plus,
   Trash,
 } from 'lucide-react'
-import Skeleton from 'react-loading-skeleton'
-import Link from 'next/link'
-import { format } from 'date-fns'
+
 import { Button } from './ui/button'
-import { useState } from 'react'
+import Link from 'next/link'
+import Skeleton from 'react-loading-skeleton'
+import UploadButton from './UploadButton'
+import { format } from 'date-fns'
 import { getUserSubscriptionPlan } from '@/lib/stripe'
+import { trpc } from '@/app/_trpc/client'
+import { useState } from 'react'
 
 interface PageProps {
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>
@@ -91,7 +92,6 @@ const Dashboard = ({subscriptionPlan}: PageProps) => {
 
                   <div className='flex items-center gap-2'>
                     <MessageSquare className='h-4 w-4' />
-                    mocked
                   </div>
 
                   <Button
