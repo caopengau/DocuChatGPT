@@ -63,7 +63,6 @@ const onUploadComplete = async ({
     const pageLevelDocs = await loader.load();
 
     const pagesAmt = pageLevelDocs.length;
-    console.log("pagesAmt--->", { pagesAmt });
 
     const { subscriptionPlan } = metadata;
     const { isSubscribed } = subscriptionPlan;
@@ -73,13 +72,6 @@ const onUploadComplete = async ({
     const isFreeExceeded =
       pagesAmt > PLANS.find((plan) => plan.name === "Free")!.pagesPerPdf;
 
-    console.log({
-      isSubscribed,
-      isProExceeded,
-      isFreeExceeded,
-      bool:
-        (isSubscribed && isProExceeded) || (!isSubscribed && isFreeExceeded),
-    });
     if ((isSubscribed && isProExceeded) || (!isSubscribed && isFreeExceeded)) {
       await db.file.update({
         data: {
@@ -105,8 +97,6 @@ const onUploadComplete = async ({
       namespace: createdFile.id,
     });
 
-    console.log("PineconeStore.fromDocuments done");
-
     await db.file.update({
       data: {
         uploadStatus: "SUCCESS",
@@ -116,10 +106,7 @@ const onUploadComplete = async ({
         id: createdFile.id,
       },
     });
-
-    console.log("db.file.update to SUCCESS failed");
   } catch (err) {
-    console.log("err", err);
     await db.file.update({
       data: {
         uploadStatus: "FAILED",

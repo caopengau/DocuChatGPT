@@ -11,14 +11,20 @@ import { buttonVariants } from "../ui/button";
 import { trpc } from "@/app/_trpc/client";
 
 interface ChatWrapperProps {
-  fileId: string;
-  isSubscribed: boolean;
+  file: any;
+  plan: any;
 }
 
-const ChatWrapper = ({ fileId, isSubscribed }: ChatWrapperProps) => {
+const ChatWrapper = ({ file, plan }: ChatWrapperProps) => {
+  const { pagesAmt } = file;
+  const isProExceeded =
+    pagesAmt > PLANS.find((plan) => plan.name === "Pro")!.pagesPerPdf;
+  const isFreeExceeded =
+    pagesAmt > PLANS.find((plan) => plan.name === "Free")!.pagesPerPdf;
+
   const { data, isLoading } = trpc.getFileUploadStatus.useQuery(
     {
-      fileId,
+      fileId: file.id,
     },
     {
       refetchInterval: (data) =>
@@ -58,7 +64,7 @@ const ChatWrapper = ({ fileId, isSubscribed }: ChatWrapperProps) => {
       </div>
     );
 
-  if (data?.status === "FAILED")
+  if (data?.status === "FAILED" || isProExceeded || isFreeExceeded)
     return (
       <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2">
         <div className="flex-1 flex justify-center items-center flex-col mb-28">
@@ -68,10 +74,10 @@ const ChatWrapper = ({ fileId, isSubscribed }: ChatWrapperProps) => {
             <p className="text-zinc-500 text-sm">
               Your{" "}
               <span className="font-medium">
-                {isSubscribed ? "Pro" : "Free"}
+                {plan.isSubscribed ? "Pro" : "Free"}
               </span>{" "}
               plan supports up to{" "}
-              {isSubscribed
+              {plan.isSubscribed
                 ? PLANS.find((p) => p.name === "Pro")?.pagesPerPdf
                 : PLANS.find((p) => p.name === "Free")?.pagesPerPdf}{" "}
               pages per PDF.
@@ -94,10 +100,10 @@ const ChatWrapper = ({ fileId, isSubscribed }: ChatWrapperProps) => {
     );
 
   return (
-    <ChatContextProvider fileId={fileId}>
+    <ChatContextProvider fileId={file.id}>
       <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2">
         <div className="flex-1 justify-between flex flex-col mb-28">
-          <Messages fileId={fileId} />
+          <Messages fileId={file.id} />
         </div>
 
         <ChatInput />
