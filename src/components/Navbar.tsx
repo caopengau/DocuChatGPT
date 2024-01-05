@@ -1,14 +1,15 @@
-import Link from 'next/link'
-import MaxWidthWrapper from './MaxWidthWrapper'
-import { buttonVariants } from './ui/button'
 import {
   LoginLink,
   RegisterLink,
   getKindeServerSession,
 } from '@kinde-oss/kinde-auth-nextjs/server'
+
 import { ArrowRight } from 'lucide-react'
-import UserAccountNav from './UserAccountNav'
+import Link from 'next/link'
+import MaxWidthWrapper from './MaxWidthWrapper'
 import MobileNav from './MobileNav'
+import UserAccountNav from './UserAccountNav'
+import { buttonVariants } from './ui/button'
 
 const Navbar = () => {
   const { getUser } = getKindeServerSession()
@@ -21,7 +22,7 @@ const Navbar = () => {
           <Link
             href='/'
             className='flex z-40 font-semibold'>
-            <span>docuchatgpt.</span>
+            <span>DocuChatGPT</span>
           </Link>
 
           <MobileNav isAuth={!!user} />
