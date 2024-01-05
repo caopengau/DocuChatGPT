@@ -1,7 +1,5 @@
 import { APIFileResponse, APIListFileResponse, FileDataDTO } from "../types";
 
-import { makeTaggingHeader } from "../storage/fileStorage";
-import { randomUUID } from "crypto";
 import useSWR from "swr";
 
 const fetcher = (info: RequestInfo, init?: RequestInit) =>
@@ -27,7 +25,7 @@ export const useFiles = (): SWRResponse<FileDataDTO[]> => {
   };
 };
 
-export const deleteFile = async ({
+export const deleteFileFiles = async ({
   file,
   files,
 }: {

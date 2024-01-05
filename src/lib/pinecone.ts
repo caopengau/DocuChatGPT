@@ -10,3 +10,12 @@ export const getPineconeClient = async () => {
 
   return client;
 };
+
+export const deletePineconeEmbeddingByNamespace = async (namespace: string) => {
+  const pinecone = await getPineconeClient();
+  const pineconeIndex = pinecone.Index("docuchatgpt");
+  await pineconeIndex.delete1({
+    namespace: namespace,
+    deleteAll: true,
+  });
+};

@@ -1,11 +1,3 @@
-import {
-  deleteFile,
-  getDownloadUrl,
-  getUploadUrl,
-  listFiles,
-} from "../../../storage/fileStorage";
-
-import { FileDataDTO } from "../../../types";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { PLANS } from "@/config/stripe";
@@ -57,7 +49,7 @@ export async function PUT(request: Request) {
   if (!fileMetadata) {
     return new Response(
       JSON.stringify({
-        message: "An error occured",
+        message: "An error occurred",
         error: "Missing file metadata",
       }),
       {

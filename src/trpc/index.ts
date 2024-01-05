@@ -1,4 +1,3 @@
-import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { privateProcedure, publicProcedure, router } from "./trpc";
 
@@ -6,11 +5,10 @@ import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { PLANS } from "@/config/stripe";
 import { TRPCError } from "@trpc/server";
 import { absoluteUrl } from "@/lib/utils";
-import config from "@/config";
 import { db } from "@/db";
+import { deletePineconeEmbeddingByNamespace } from "@/lib/pinecone";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { getPineconeClient } from "@/lib/pinecone";
-import { utapi } from "uploadthing/server";
+import { s3DeleteFile } from "@/storage/fileStorage";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -192,38 +190,18 @@ export const appRouter = router({
 
       if (!file) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const key = file.key;
-      const s3 = new S3Client({
-        region: config.s3.region,
-        credentials: config.s3.credentials,
-      });
-
-      const response = await s3.send(
-        new DeleteObjectCommand({
-          Bucket: config.s3.bucketName,
-          Key: key,
-        })
-      );
-      const status = response.$metadata.httpStatusCode;
-      if (status && status >= 300) {
-        return {
-          success: false,
-          error: `Unexpected status code when delete ${config.s3.bucketName}/${key}: ${status}`,
-        };
-      }
-
-      await db.file.delete({
-        where: {
-          id: input.id,
-        },
-      });
-
-      const pinecone = await getPineconeClient();
-      const pineconeIndex = pinecone.Index("docuchatgpt");
-      await pineconeIndex.delete1({
-        namespace: file.id,
-        deleteAll: true,
-      });
+      await Promise.all([
+        s3DeleteFile({
+          folder: userId,
+          filename: file.name,
+        }),
+        db.file.delete({
+          where: {
+            id: input.id,
+          },
+        }),
+        deletePineconeEmbeddingByNamespace(file.id),
+      ]);
 
       // await utapi.deleteFiles([file.key]);
 

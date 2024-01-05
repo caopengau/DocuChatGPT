@@ -17,7 +17,7 @@ const s3 = new S3Client({
   credentials: config.s3.credentials,
 });
 
-export const deleteFile = async ({
+export const s3DeleteFile = async ({
   folder,
   filename,
   filenames,

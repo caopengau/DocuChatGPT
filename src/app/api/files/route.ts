@@ -1,8 +1,8 @@
 import {
-  deleteFile,
   getDownloadUrl,
   getUploadUrl,
   listFiles,
+  s3DeleteFile,
 } from "../../../storage/fileStorage";
 
 import { FileDataDTO } from "../../../types";
@@ -67,17 +67,26 @@ export async function PUT(request: Request) {
     },
   });
 
-  if (isFileExist) return;
-
-  await db.file.create({
-    data: {
-      key: dbParams.key,
-      name: dbParams.name,
-      userId: user.id,
-      url: dbParams.url,
-      uploadStatus: "PROCESSING",
-    },
-  });
+  if (!isFileExist) {
+    await db.file.create({
+      data: {
+        key: dbParams.key,
+        name: dbParams.name,
+        userId: user.id,
+        url: dbParams.url,
+        uploadStatus: "PROCESSING",
+      },
+    });
+  } else {
+    await db.file.update({
+      where: {
+        id: isFileExist.id,
+      },
+      data: {
+        uploadStatus: "PROCESSING",
+      },
+    });
+  }
 
   const { signedUrl, key } = await getUploadUrl({
     acl: "private",
@@ -125,7 +134,7 @@ export async function DELETE(req: Request) {
   const filename = searchParams.get("filename") || undefined;
   const filenames = searchParams.get("filenames")?.split(",") || undefined;
 
-  const { error } = await deleteFile({
+  const { error } = await s3DeleteFile({
     folder: `${user.id}`,
     filename,
     filenames,
