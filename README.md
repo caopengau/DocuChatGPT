@@ -2,7 +2,7 @@
 
 Built with the Next.js 13.5 App Router, tRPC, TypeScript, Prisma & Tailwind
 
-![Project Image](https://github.com/caopengau/docuchatgpt/blob/master/public/thumbnail.png)
+![Project Image](https://github.com/caopengau/docuchatgpt/blob/main/public/thumbnail.png)
 
 ## Features
 

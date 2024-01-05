@@ -190,7 +190,7 @@ export const appRouter = router({
 
       if (!file) throw new TRPCError({ code: "NOT_FOUND" });
 
-      await Promise.all([
+      await Promise.allSettled([
         s3DeleteFile({
           folder: userId,
           filename: file.name,
