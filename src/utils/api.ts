@@ -1,6 +1,7 @@
 import { APIFileResponse, APIListFileResponse, FileDataDTO } from "../types";
 
 import { makeTaggingHeader } from "../storage/fileStorage";
+import { randomUUID } from "crypto";
 import useSWR from "swr";
 
 const fetcher = (info: RequestInfo, init?: RequestInit) =>
@@ -59,7 +60,7 @@ export const uploadFile = async (
   operations: string[] = []
 ): Promise<FileDataDTO> => {
   const fileName = file.name;
-  const response = await fetch(`/api/files/?filename=${fileName}`, {
+  const response = await fetch(`/api/files?filename=${fileName}`, {
     method: "PUT",
     body: (operations && JSON.stringify({ operations })) || undefined,
   });
@@ -72,6 +73,10 @@ export const uploadFile = async (
     file,
     url: data.signedUrl,
     // taggingHeader
+  });
+
+  await fetch(`/api/embedding?filename=${fileName}`, {
+    method: "PUT",
   });
   return { ...data.file, url: data.file.url.split("?")[0] };
 };

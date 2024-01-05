@@ -70,7 +70,6 @@ const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
         }
 
         // const [fileResponse] = res
-
         // const key = fileResponse?.key
 
         if (!res) {
@@ -81,10 +80,10 @@ const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
           });
         }
 
-        // clearInterval(progressInterval)
-        // setUploadProgress(100)
+        clearInterval(progressInterval);
+        setUploadProgress(100);
 
-        // startPolling({ key })
+        startPolling({ key: res.id });
       }}
     >
       {({ getRootProps, getInputProps, acceptedFiles }) => (

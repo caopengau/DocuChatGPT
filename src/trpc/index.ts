@@ -1,3 +1,4 @@
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { privateProcedure, publicProcedure, router } from "./trpc";
 
@@ -5,6 +6,7 @@ import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { PLANS } from "@/config/stripe";
 import { TRPCError } from "@trpc/server";
 import { absoluteUrl } from "@/lib/utils";
+import config from "@/config";
 import { db } from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { getPineconeClient } from "@/lib/pinecone";
@@ -190,6 +192,26 @@ export const appRouter = router({
 
       if (!file) throw new TRPCError({ code: "NOT_FOUND" });
 
+      const key = file.key;
+      const s3 = new S3Client({
+        region: config.s3.region,
+        credentials: config.s3.credentials,
+      });
+
+      const response = await s3.send(
+        new DeleteObjectCommand({
+          Bucket: config.s3.bucketName,
+          Key: key,
+        })
+      );
+      const status = response.$metadata.httpStatusCode;
+      if (status && status >= 300) {
+        return {
+          success: false,
+          error: `Unexpected status code when delete ${config.s3.bucketName}/${key}: ${status}`,
+        };
+      }
+
       await db.file.delete({
         where: {
           id: input.id,
@@ -203,7 +225,7 @@ export const appRouter = router({
         deleteAll: true,
       });
 
-      await utapi.deleteFiles([file.key]);
+      // await utapi.deleteFiles([file.key]);
 
       return file;
     }),

@@ -6,6 +6,7 @@ import {
 } from "../../../storage/fileStorage";
 
 import { FileDataDTO } from "../../../types";
+import { db } from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { getUserSubscriptionPlan } from "@/lib/stripe";
 
@@ -18,22 +19,22 @@ export async function GET(req: Request) {
 }
 
 export async function PUT(request: Request) {
-  // const { getUser } = getKindeServerSession();
-  // const user = getUser();
+  const { getUser } = getKindeServerSession();
+  const user = getUser();
 
-  // if (!user || !user.id) {
-  //   return new Response(
-  //     JSON.stringify({
-  //       message: "An error occured",
-  //       error: "Unauthorized",
-  //     }),
-  //     {
-  //       status: 401,
-  //     }
-  //   );
-  // }
+  if (!user || !user.id) {
+    return new Response(
+      JSON.stringify({
+        message: "An error occured",
+        error: "Unauthorized",
+      }),
+      {
+        status: 401,
+      }
+    );
+  }
 
-  // const subscriptionPlan = await getUserSubscriptionPlan();
+  const subscriptionPlan = await getUserSubscriptionPlan();
 
   const { searchParams } = new URL(request.url);
 
@@ -53,10 +54,35 @@ export async function PUT(request: Request) {
       }
     );
   }
+
+  const dbParams = {
+    key: user.id + "/" + filename,
+    name: filename,
+    url: `https://docuchatgpt-bucket.s3.ap-southeast-2.amazonaws.com/${user.id}/${filename}`,
+  };
+
+  const isFileExist = await db.file.findFirst({
+    where: {
+      key: dbParams.key,
+    },
+  });
+
+  if (isFileExist) return;
+
+  await db.file.create({
+    data: {
+      key: dbParams.key,
+      name: dbParams.name,
+      userId: user.id,
+      url: dbParams.url,
+      uploadStatus: "PROCESSING",
+    },
+  });
+
   const { signedUrl, key } = await getUploadUrl({
     acl: "private",
     filename,
-    folder: "default",
+    folder: user.id,
     operations: operations || undefined,
   });
   const url = await getDownloadUrl({ key });
@@ -79,13 +105,28 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const { getUser } = getKindeServerSession();
+  const user = getUser();
+
+  if (!user || !user.id) {
+    return new Response(
+      JSON.stringify({
+        message: "An error occured",
+        error: "Unauthorized",
+      }),
+      {
+        status: 401,
+      }
+    );
+  }
+
   const { searchParams } = new URL(req.url);
 
   const filename = searchParams.get("filename") || undefined;
   const filenames = searchParams.get("filenames")?.split(",") || undefined;
 
   const { error } = await deleteFile({
-    folder: "default",
+    folder: `${user.id}`,
     filename,
     filenames,
   });
