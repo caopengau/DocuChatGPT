@@ -7,6 +7,7 @@ import ChatInput from "./ChatInput";
 import Link from "next/link";
 import Messages from "./Messages";
 import { PLANS } from "@/config/stripe";
+import UpgradeButton from "../UpgradeButton";
 import { buttonVariants } from "../ui/button";
 import { trpc } from "@/app/_trpc/client";
 
@@ -82,15 +83,21 @@ const ChatWrapper = ({ file, plan }: ChatWrapperProps) => {
                 : PLANS.find((p) => p.name === "Free")?.pagesPerPdf}{" "}
               pages per PDF.
             </p>
+            <UpgradeButton
+              className={buttonVariants({
+                variant: "default",
+                className: "mt-4 w-2/3",
+              })}
+            />
             <Link
               href="/dashboard"
               className={buttonVariants({
                 variant: "secondary",
-                className: "mt-4",
+                className: "mt-4 w-2/3",
               })}
             >
               <ChevronLeft className="h-3 w-3 mr-1.5" />
-              Back
+              Back to Dashboard
             </Link>
           </div>
         </div>
