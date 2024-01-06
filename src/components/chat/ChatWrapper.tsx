@@ -26,7 +26,12 @@ const ChatWrapper = ({ file, plan }: ChatWrapperProps) => {
     },
     {
       refetchInterval: (data) =>
-        data?.status === "SUCCESS" || data?.status === "FAILED" ? false : 1000,
+        data?.status === "SUCCESS" ||
+        data?.status === "FAILED" ||
+        data?.status === "EXCEED_PRO" ||
+        data?.status === "EXCEED_FREE"
+          ? false
+          : 1000,
     }
   );
 
@@ -61,10 +66,7 @@ const ChatWrapper = ({ file, plan }: ChatWrapperProps) => {
         <ChatInput isDisabled />
       </div>
     );
-  if (
-    (data?.status === "FAILED" && !plan.isSubscribed) ||
-    pagesAmt > plan.pagesPerPdf!
-  )
+  if (data?.status !== "SUCCESS")
     return (
       <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2">
         <div className="flex-1 flex justify-center items-center flex-col mb-28">
@@ -80,14 +82,26 @@ const ChatWrapper = ({ file, plan }: ChatWrapperProps) => {
               {plan.isSubscribed
                 ? PLANS.find((p) => p.name === "Pro")?.pagesPerPdf
                 : PLANS.find((p) => p.name === "Free")?.pagesPerPdf}{" "}
-              pages per PDF.
+              pages per PDF up to size of{" "}
+              {plan.isSubscribed
+                ? PLANS.find((p) => p.name === "Pro")?.sizePerFile
+                : PLANS.find((p) => p.name === "Free")?.sizePerFile}{" "}
+              MB
             </p>
-            <UpgradeButton
-              className={buttonVariants({
-                variant: "default",
-                className: "mt-4 w-2/3",
-              })}
-            />
+            {data?.status === "EXCEED_FREE" && (
+              <UpgradeButton
+                className={buttonVariants({
+                  variant: "default",
+                  className: "mt-4 w-2/3",
+                })}
+              />
+            )}
+            {data?.status === "EXCEED_PRO" && (
+              <p className="text-zinc-500 text-sm">
+                Please contact us at for a custom plan.
+              </p>
+            )}
+
             <Link
               href="/dashboard"
               className={buttonVariants({

@@ -29,6 +29,8 @@ enum UploadStatus {
   PROCESSING
   FAILED
   SUCCESS
+  EXCEED_FREE
+  EXCEED_PRO
 }
 
 model File {

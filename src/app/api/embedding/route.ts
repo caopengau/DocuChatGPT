@@ -6,7 +6,6 @@ import { db } from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { getPineconeClient } from "@/lib/pinecone";
 import { getUserSubscriptionPlan } from "@/lib/stripe";
-import { s3DeleteFile } from "@/storage/fileStorage";
 
 export async function PUT(request: Request) {
   const { getUser } = getKindeServerSession();
@@ -15,7 +14,7 @@ export async function PUT(request: Request) {
   if (!user || !user.id) {
     return new Response(
       JSON.stringify({
-        message: "An error occured",
+        message: "An error occurred",
         error: "Unauthorized",
       }),
       {
@@ -33,7 +32,7 @@ export async function PUT(request: Request) {
   if (!filename) {
     return new Response(
       JSON.stringify({
-        message: "An error occured",
+        message: "An error occurred",
         error: 'Missing query parameter "filename',
       }),
       {
@@ -70,44 +69,36 @@ export async function PUT(request: Request) {
 
     const pagesAmt = pageLevelDocs.length;
 
-    const { isSubscribed, sizePerFile } = subscriptionPlan;
-
+    const proPlan = PLANS.find((plan) => plan.name === "Pro")!;
+    const freePlan = PLANS.find((plan) => plan.name === "Free")!;
     const isProExceeded =
-      pagesAmt > PLANS.find((plan) => plan.name === "Pro")!.pagesPerPdf;
+      pagesAmt > proPlan.pagesPerPdf ||
+      blob.size > proPlan.sizePerFile * 1024 * 1024;
     const isFreeExceeded =
-      pagesAmt > PLANS.find((plan) => plan.name === "Free")!.pagesPerPdf;
+      pagesAmt > freePlan.pagesPerPdf ||
+      blob.size > freePlan.sizePerFile * 1024 * 1024;
 
-    if ((isSubscribed && isProExceeded) || (!isSubscribed && isFreeExceeded)) {
+    if (isProExceeded) {
       await db.file.update({
         data: {
-          uploadStatus: "FAILED",
+          uploadStatus: "EXCEED_PRO",
           pagesAmt,
         },
         where: {
           id: fileMetadata.id,
         },
       });
-      // await s3DeleteFile({
-      //   folder: user.id,
-      //   filename: fileMetadata.name,
-      // });
-      // await db.file.delete({
-      //   where: {
-      //     id: fileMetadata.id,
-      //   },
-      // });
-      // return new Response(
-      //   JSON.stringify({
-      //     message: "Limit exceeded. Please upgrade your plan and try again.",
-      //     error: "File too large",
-      //   }),
-      //   {
-      //     status: 500,
-      //   }
-      // );
+      return new Response(
+        JSON.stringify({
+          message: "Limit exceeded!",
+          error: "File too large",
+        }),
+        {
+          status: 500,
+        }
+      );
     }
 
-    // vectorize and index entire document
     const pinecone = await getPineconeClient();
     const pineconeIndex = pinecone.Index("docuchatgpt");
 
@@ -120,16 +111,29 @@ export async function PUT(request: Request) {
       namespace: fileMetadata.id,
     });
 
-    await db.file.update({
-      data: {
-        uploadStatus: "SUCCESS",
-        pagesAmt,
-      },
-      where: {
-        id: fileMetadata.id,
-      },
-    });
+    if (!subscriptionPlan.isSubscribed && isFreeExceeded) {
+      await db.file.update({
+        data: {
+          uploadStatus: "EXCEED_FREE",
+          pagesAmt,
+        },
+        where: {
+          id: fileMetadata.id,
+        },
+      });
+    } else {
+      await db.file.update({
+        data: {
+          uploadStatus: "SUCCESS",
+          pagesAmt,
+        },
+        where: {
+          id: fileMetadata.id,
+        },
+      });
+    }
   } catch (err) {
+    console.error(err);
     await db.file.update({
       data: {
         uploadStatus: "FAILED",

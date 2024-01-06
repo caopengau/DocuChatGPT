@@ -8,7 +8,6 @@ import {
 import { FileDataDTO } from "../../../types";
 import { db } from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { getUserSubscriptionPlan } from "@/lib/stripe";
 
 export async function GET(req: Request) {
   const files = await listFiles({ folder: "default" });
@@ -25,7 +24,7 @@ export async function PUT(request: Request) {
   if (!user || !user.id) {
     return new Response(
       JSON.stringify({
-        message: "An error occured",
+        message: "An error occurred",
         error: "Unauthorized",
       }),
       {
@@ -33,8 +32,6 @@ export async function PUT(request: Request) {
       }
     );
   }
-
-  const subscriptionPlan = await getUserSubscriptionPlan();
 
   const { searchParams } = new URL(request.url);
 
@@ -46,7 +43,7 @@ export async function PUT(request: Request) {
   if (!filename) {
     return new Response(
       JSON.stringify({
-        message: "An error occured",
+        message: "An error occurred",
         error: 'Missing query parameter "filename',
       }),
       {
@@ -120,7 +117,7 @@ export async function DELETE(req: Request) {
   if (!user || !user.id) {
     return new Response(
       JSON.stringify({
-        message: "An error occured",
+        message: "An error occurred",
         error: "Unauthorized",
       }),
       {
@@ -142,7 +139,7 @@ export async function DELETE(req: Request) {
   if (error) {
     return new Response(
       JSON.stringify({
-        message: "An error occured",
+        message: "An error occurred",
       }),
       {
         status: 500,
