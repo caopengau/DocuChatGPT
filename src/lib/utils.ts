@@ -16,8 +16,8 @@ export function absoluteUrl(path: string) {
 }
 
 export function constructMetadata({
-  title = "DocuChatGPT - the SaaS for students",
-  description = "DocuChatGPT is an open-source software to make chatting to your PDF files easy.",
+  title = "DocuChatGPT - the AI SaaS for knowledge retrieval",
+  description = "DocuChatGPT is an AI Powered software to enable chatting with your PDF files.",
   image = "/thumbnail.png",
   icons = "/favicon.ico",
   noIndex = false
