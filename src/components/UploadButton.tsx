@@ -60,7 +60,7 @@ const UploadDropzone = ({
       multiple={false}
       onDrop={async (acceptedFile) => {
         const fileSizeInMb = acceptedFile[0].size / 1024 / 1024;
-        console.log({ fileSizeInMb, sizeLimit });
+
         if (fileSizeInMb > sizeLimit) {
           return toast({
             title: "File too large",
