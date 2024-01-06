@@ -47,6 +47,7 @@ model File {
   userId    String?
 
   pagesAmt Int?
+  deletedMark Boolean? @default(false)
 }
 
 model Message {

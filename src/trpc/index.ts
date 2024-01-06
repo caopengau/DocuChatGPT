@@ -195,9 +195,13 @@ export const appRouter = router({
           folder: userId,
           filename: file.name,
         }),
-        db.file.delete({
+        // set deletedMark to true
+        db.file.update({
           where: {
-            id: input.id,
+            id: file.id,
+          },
+          data: {
+            deletedMark: true,
           },
         }),
         deletePineconeEmbeddingByNamespace(file.id),

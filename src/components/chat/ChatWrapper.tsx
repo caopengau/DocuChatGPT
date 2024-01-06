@@ -18,10 +18,6 @@ interface ChatWrapperProps {
 
 const ChatWrapper = ({ file, plan }: ChatWrapperProps) => {
   const { pagesAmt } = file;
-  const isProExceeded =
-    pagesAmt > PLANS.find((plan) => plan.name === "Pro")!.pagesPerPdf;
-  const isFreeExceeded =
-    pagesAmt > PLANS.find((plan) => plan.name === "Free")!.pagesPerPdf;
 
   const { data, isLoading } = trpc.getFileUploadStatus.useQuery(
     {
@@ -65,7 +61,10 @@ const ChatWrapper = ({ file, plan }: ChatWrapperProps) => {
       </div>
     );
 
-  if (data?.status === "FAILED" || isProExceeded || isFreeExceeded)
+    console.log({
+      plan
+    })
+  if (data?.status === "FAILED" || pagesAmt > plan.pagesPerPdf)
     return (
       <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2">
         <div className="flex-1 flex justify-center items-center flex-col mb-28">

@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Button } from "./ui/button";
 import Dropzone from "react-dropzone";
 import { Progress } from "./ui/progress";
+import { getUserSubscriptionPlan } from "@/lib/stripe";
 import { trpc } from "@/app/_trpc/client";
 import { uploadFile } from "@/utils/api";
 import { useRouter } from "next/navigation";
@@ -150,7 +151,7 @@ const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
   );
 };
 
-const UploadButton = ({ isSubscribed }: { isSubscribed: boolean }) => {
+const UploadButton = ({ subscriptionPlan, disabled }: { subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>, disabled?: boolean }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
@@ -163,11 +164,11 @@ const UploadButton = ({ isSubscribed }: { isSubscribed: boolean }) => {
       }}
     >
       <DialogTrigger onClick={() => setIsOpen(true)} asChild>
-        <Button>Upload PDF</Button>
+        <Button disabled={disabled}>Upload PDF</Button>
       </DialogTrigger>
 
       <DialogContent>
-        <UploadDropzone isSubscribed={isSubscribed} />
+        <UploadDropzone isSubscribed={subscriptionPlan.isSubscribed} />
       </DialogContent>
     </Dialog>
   );
