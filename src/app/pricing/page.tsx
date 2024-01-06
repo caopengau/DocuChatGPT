@@ -1,22 +1,23 @@
-import MaxWidthWrapper from '@/components/MaxWidthWrapper'
-import UpgradeButton from '@/components/UpgradeButton'
-import { buttonVariants } from '@/components/ui/button'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { PLANS } from '@/config/stripe'
-import { cn } from '@/lib/utils'
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import {
   ArrowRight,
   Check,
   HelpCircle,
   Minus,
 } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
 import Link from 'next/link'
+import MaxWidthWrapper from '@/components/MaxWidthWrapper'
+import { PLANS } from '@/config/stripe'
+import UpgradeButton from '@/components/UpgradeButton'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 
 const Page = () => {
   const { getUser } = getKindeServerSession()
@@ -64,7 +65,7 @@ const Page = () => {
             'The maximum amount of pages per PDF-file.',
         },
         {
-          text: '16MB file size limit',
+          text: '25MB file size limit',
           footnote:
             'The maximum file size of a single PDF file.',
         },

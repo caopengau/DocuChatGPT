@@ -177,6 +177,11 @@ dependencies:
     specifier: ^3.21.4
     version: 3.21.4
 
+devDependencies:
+  dotenv:
+    specifier: ^16.3.1
+    version: 16.3.1
+
 packages:
 
   /@aashutoshrathi/word-wrap@1.2.6:
@@ -3390,6 +3395,11 @@ packages:
     dependencies:
       esutils: 2.0.3
     dev: false
+
+  /dotenv@16.3.1:
+    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
+    engines: {node: '>=12'}
+    dev: true
 
   /electron-to-chromium@1.4.526:
     resolution: {integrity: sha512-tjjTMjmZAx1g6COrintLTa2/jcafYKxKoiEkdQOrVdbLaHh2wCt2nsAF8ZHweezkrP+dl/VG9T5nabcYoo0U5Q==}
