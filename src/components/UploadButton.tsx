@@ -14,7 +14,13 @@ import { useState } from "react";
 import { useToast } from "./ui/use-toast";
 import { useUploadThing } from "@/lib/uploadthing";
 
-const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
+const UploadDropzone = ({
+  isSubscribed,
+  sizeLimit,
+}: {
+  isSubscribed: boolean;
+  sizeLimit: number;
+}) => {
   const router = useRouter();
 
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -42,7 +48,7 @@ const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
           clearInterval(interval);
           return prevProgress;
         }
-        return prevProgress + 5;
+        return prevProgress + 10;
       });
     }, 500);
 
@@ -53,6 +59,15 @@ const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
     <Dropzone
       multiple={false}
       onDrop={async (acceptedFile) => {
+        const fileSizeInMb = acceptedFile[0].size / 1024 / 1024;
+        if (fileSizeInMb > sizeLimit) {
+          return toast({
+            title: "File too large",
+            description: `Please upload a file smaller than ${sizeLimit}MB or upgrade to a Pro plan for larger uploads`,
+            variant: "destructive",
+          });
+        }
+
         setIsUploading(true);
 
         const progressInterval = startSimulatedProgress();
@@ -60,26 +75,21 @@ const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
         // handle file uploading
         // const res = await startUpload(acceptedFile)
 
+        const sizeInMB = acceptedFile[0].size / 1024 / 1024;
+
         const res = await uploadFile(acceptedFile[0]);
 
         if (!res) {
           return toast({
             title: "Something went wrong",
-            description: "Please try again later",
+            description:
+              "Please try again later. Chat with us via button left icon if this persists",
             variant: "destructive",
           });
         }
 
         // const [fileResponse] = res
         // const key = fileResponse?.key
-
-        if (!res) {
-          return toast({
-            title: "Something went wrong",
-            description: "Please try again later",
-            variant: "destructive",
-          });
-        }
 
         clearInterval(progressInterval);
         setUploadProgress(100);
@@ -104,7 +114,7 @@ const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
                   and drop
                 </p>
                 <p className="text-xs text-zinc-500">
-                  PDF (up to {isSubscribed ? "16" : "4"}MB)
+                  PDF (up to {isSubscribed ? "25" : "4"}MB)
                 </p>
               </div>
 
@@ -151,7 +161,13 @@ const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
   );
 };
 
-const UploadButton = ({ subscriptionPlan, disabled }: { subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>, disabled?: boolean }) => {
+const UploadButton = ({
+  subscriptionPlan,
+  disabled,
+}: {
+  subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>;
+  disabled?: boolean;
+}) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
@@ -168,7 +184,10 @@ const UploadButton = ({ subscriptionPlan, disabled }: { subscriptionPlan: Awaite
       </DialogTrigger>
 
       <DialogContent>
-        <UploadDropzone isSubscribed={subscriptionPlan.isSubscribed} />
+        <UploadDropzone
+          isSubscribed={subscriptionPlan.isSubscribed}
+          sizeLimit={subscriptionPlan.sizePerFile!}
+        />
       </DialogContent>
     </Dialog>
   );

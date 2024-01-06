@@ -9,11 +9,12 @@ import Messages from "./Messages";
 import { PLANS } from "@/config/stripe";
 import UpgradeButton from "../UpgradeButton";
 import { buttonVariants } from "../ui/button";
+import { getUserSubscriptionPlan } from "@/lib/stripe";
 import { trpc } from "@/app/_trpc/client";
 
 interface ChatWrapperProps {
   file: any;
-  plan: any;
+  plan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>;
 }
 
 const ChatWrapper = ({ file, plan }: ChatWrapperProps) => {
@@ -60,11 +61,10 @@ const ChatWrapper = ({ file, plan }: ChatWrapperProps) => {
         <ChatInput isDisabled />
       </div>
     );
-
-    console.log({
-      plan
-    })
-  if (data?.status === "FAILED" || pagesAmt > plan.pagesPerPdf)
+  if (
+    (data?.status === "FAILED" && !plan.isSubscribed) ||
+    pagesAmt > plan.pagesPerPdf!
+  )
     return (
       <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2">
         <div className="flex-1 flex justify-center items-center flex-col mb-28">

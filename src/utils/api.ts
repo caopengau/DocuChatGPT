@@ -76,6 +76,7 @@ export const uploadFile = async (
   await fetch(`/api/embedding?filename=${fileName}`, {
     method: "PUT",
   });
+
   return { ...data.file, url: data.file.url.split("?")[0] };
 };
 

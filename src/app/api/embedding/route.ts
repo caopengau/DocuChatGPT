@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { getPineconeClient } from "@/lib/pinecone";
 import { getUserSubscriptionPlan } from "@/lib/stripe";
+import { s3DeleteFile } from "@/storage/fileStorage";
 
 export async function PUT(request: Request) {
   const { getUser } = getKindeServerSession();
@@ -69,7 +70,7 @@ export async function PUT(request: Request) {
 
     const pagesAmt = pageLevelDocs.length;
 
-    const { isSubscribed } = subscriptionPlan;
+    const { isSubscribed, sizePerFile } = subscriptionPlan;
 
     const isProExceeded =
       pagesAmt > PLANS.find((plan) => plan.name === "Pro")!.pagesPerPdf;
@@ -86,6 +87,24 @@ export async function PUT(request: Request) {
           id: fileMetadata.id,
         },
       });
+      // await s3DeleteFile({
+      //   folder: user.id,
+      //   filename: fileMetadata.name,
+      // });
+      // await db.file.delete({
+      //   where: {
+      //     id: fileMetadata.id,
+      //   },
+      // });
+      // return new Response(
+      //   JSON.stringify({
+      //     message: "Limit exceeded. Please upgrade your plan and try again.",
+      //     error: "File too large",
+      //   }),
+      //   {
+      //     status: 500,
+      //   }
+      // );
     }
 
     // vectorize and index entire document

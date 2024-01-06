@@ -2,6 +2,7 @@ export const PLANS = [
   {
     name: 'Free',
     slug: 'free',
+    sizePerFile: 4,  // in MB
     quota: 10,
     pagesPerPdf: 5,
     price: {
@@ -15,6 +16,7 @@ export const PLANS = [
   {
     name: 'Pro',
     slug: 'pro',
+    sizePerFile: 25,  // in MB
     quota: 50,
     pagesPerPdf: 25,
     price: {
