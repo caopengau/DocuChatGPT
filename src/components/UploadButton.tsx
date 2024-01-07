@@ -61,6 +61,14 @@ const UploadDropzone = ({
       onDrop={async (acceptedFile) => {
         const fileSizeInMb = acceptedFile[0].size / 1024 / 1024;
 
+        if (acceptedFile[0].type !== "application/pdf") {
+          return toast({
+            title: "Invalid file type",
+            description: `Please upload a PDF file`,
+            variant: "destructive",
+          });
+        }
+
         if (fileSizeInMb > sizeLimit) {
           return toast({
             title: "File too large",
